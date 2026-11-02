@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kintsugi · Juegos de calma</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header class="app-header">
+    <div class="logo">Kintsugi</div>
+    <nav aria-label="Principal">
+      <span class="saludo" id="saludo"></span>
+      <button class="btn-peq" id="acc-menos" type="button" aria-label="Reducir tamaño del texto">A−</button>
+      <button class="btn-peq" id="acc-mas" type="button" aria-label="Aumentar tamaño del texto">A+</button>
+      <button class="btn-peq" id="acc-contraste" type="button">Alto contraste</button>
+      <button class="btn-peq" id="salir" type="button">Cerrar sesión</button>
+    </nav>
+  </header>
+
+  <main class="juegos">
+    <h1>Juegos de calma</h1>
+    <p class="sub">Elige un minijuego para relajarte. No hay prisa ni puntos que perder.</p>
+
+    <div class="selector" role="tablist" aria-label="Minijuegos">
+      <button class="opcion" role="tab" data-juego="patrones" type="button">
+        <span class="emoji" aria-hidden="true">🌸</span>
+        <strong>Ordenar patrones</strong>
+        <small>Repite la secuencia de colores</small>
+      </button>
+      <button class="opcion" role="tab" data-juego="burbujas" type="button">
+        <span class="emoji" aria-hidden="true">🫧</span>
+        <strong>Estallar burbujas</strong>
+        <small>Toca las burbujas que suben</small>
+      </button>
+      <button class="opcion" role="tab" data-juego="respiracion" type="button">
+        <span class="emoji" aria-hidden="true">🌬️</span>
+        <strong>Respiración interactiva</strong>
+        <small>Sigue el ritmo del círculo</small>
+      </button>
+    </div>
+
+    <section class="panel-juego" id="panel" aria-live="polite">
+      <div class="vacio">Selecciona un juego para empezar 💗</div>
+    </section>
+
+    <p class="pie-ayuda">
+      Si sientes que necesitas hablar con alguien, la línea de apoyo 24/7 está disponible: marca <strong>106</strong> (línea de salud mental) o <strong>123</strong> en una emergencia.
+    </p>
+  </main>
+
+  <script src="js/comun.js"></script>
+  <script src="js/juegos.js"></script>
+</body>
+</html>

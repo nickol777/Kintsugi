@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kintsugi · Crear cuenta</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="barra-acc" role="toolbar" aria-label="Opciones de accesibilidad">
+    <button id="acc-menos" type="button" aria-label="Reducir tamaño del texto">A−</button>
+    <button id="acc-mas" type="button" aria-label="Aumentar tamaño del texto">A+</button>
+    <button id="acc-contraste" type="button">Alto contraste</button>
+  </div>
+
+  <main class="contenedor">
+    <section class="tarjeta">
+      <div class="logo">Kintsugi</div>
+      <p class="lema">Crear tu cuenta toma menos de un minuto.</p>
+      <h1>Registro</h1>
+
+      <form id="form-registro" novalidate>
+        <div class="campo">
+          <label for="nombre">Nombre</label>
+          <input type="text" id="nombre" autocomplete="name" required>
+          <div class="mensaje-error" aria-live="polite"></div>
+        </div>
+        <div class="campo">
+          <label for="correo">Correo</label>
+          <input type="email" id="correo" autocomplete="email" placeholder="tucorreo@ejemplo.com" required>
+          <div class="mensaje-error" aria-live="polite"></div>
+        </div>
+        <div class="campo">
+          <label for="clave">Contraseña</label>
+          <div class="fila-pass">
+            <input type="password" id="clave" autocomplete="new-password" required>
+            <button type="button" class="ver-pass" data-target="clave" aria-label="Mostrar contraseña">Ver</button>
+          </div>
+          <div class="fuerza" aria-hidden="true"><span></span></div>
+          <div class="ayuda">Mínimo 8 caracteres, con al menos una letra y un número.</div>
+          <div class="mensaje-error" aria-live="polite"></div>
+        </div>
+
+        <div class="campo">
+          <label class="check" for="acepta">
+            <input type="checkbox" id="acepta">
+            <span>He leído y acepto la <a href="#" id="abrir-consent">política de privacidad y el consentimiento informado</a>.</span>
+          </label>
+          <div class="mensaje-error" id="error-consent" aria-live="polite"></div>
+        </div>
+
+        <button type="submit" class="btn">Crear cuenta</button>
+      </form>
+
+      <div id="exito" style="display:none; text-align:center;">
+        <div class="aviso ok" style="display:block;">
+          ¡Cuenta creada! Enviamos un enlace de activación a <strong id="correo-enviado"></strong>.
+        </div>
+        <p class="nota-ia">Esto es una simulación: como no hay servidor de correo, usa el botón para fingir que abriste el enlace.</p>
+        <button type="button" class="btn" id="simular-activacion">Activar mi cuenta</button>
+      </div>
+
+      <p class="pie">¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a></p>
+    </section>
+  </main>
+
+  <div class="modal-fondo" id="modal-consent" role="dialog" aria-modal="true" aria-labelledby="titulo-consent">
+    <div class="modal">
+      <h2 id="titulo-consent">Consentimiento informado</h2>
+      <p>Kintsugi es una plataforma de apoyo emocional para la comunidad universitaria. Antes de crear tu cuenta, ten en cuenta:</p>
+      <ul>
+        <li>Tus datos personales y de bienestar son sensibles y se tratan de forma confidencial, conforme a la Ley 1581 de 2012.</li>
+        <li>El chat usa inteligencia artificial, que no reemplaza la atención de un profesional.</li>
+        <li>El texto de tus conversaciones del chat no se almacena; solo se guarda el estado detectado (bien, mal o alto riesgo).</li>
+        <li>Si se detecta un riesgo alto, se avisará a Bienestar Universitario con tu nombre, correo, fecha, hora y nivel de riesgo, sin el texto de la conversación.</li>
+        <li>Puedes solicitar la eliminación de tu cuenta y tus datos cuando quieras.</li>
+      </ul>
+      <p>Guardaremos la fecha y la versión del consentimiento que aceptes.</p>
+      <button type="button" class="btn btn-sec" id="cerrar-consent">Entendido</button>
+    </div>
+  </div>
+
+  <script src="js/comun.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

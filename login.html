@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kintsugi · Iniciar sesión</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="barra-acc" role="toolbar" aria-label="Opciones de accesibilidad">
+    <button id="acc-menos" type="button" aria-label="Reducir tamaño del texto">A−</button>
+    <button id="acc-mas" type="button" aria-label="Aumentar tamaño del texto">A+</button>
+    <button id="acc-contraste" type="button">Alto contraste</button>
+  </div>
+
+  <main class="contenedor">
+    <section class="tarjeta">
+      <div class="logo">Kintsugi</div>
+      <p class="lema">Un espacio para cuidarte, a tu ritmo.</p>
+      <h1>Iniciar sesión</h1>
+
+      <div id="aviso" class="aviso" role="alert"></div>
+
+      <form id="form-login" novalidate>
+        <div class="campo">
+          <label for="correo">Correo</label>
+          <input type="email" id="correo" autocomplete="email" placeholder="tucorreo@ejemplo.com" required>
+        </div>
+        <div class="campo">
+          <label for="clave">Contraseña</label>
+          <div class="fila-pass">
+            <input type="password" id="clave" autocomplete="current-password" required>
+            <button type="button" class="ver-pass" data-target="clave" aria-label="Mostrar contraseña">Ver</button>
+          </div>
+        </div>
+        <button type="submit" class="btn">Entrar</button>
+      </form>
+
+      <p class="pie">¿Aún no tienes cuenta? <a href="registro.html">Regístrate</a></p>
+    </section>
+  </main>
+
+  <script src="js/comun.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>
