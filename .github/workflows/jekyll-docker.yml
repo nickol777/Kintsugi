@@ -1,0 +1,213 @@
+name: Jekyll site CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kintsugi · Juegos y videos</title>
+<style>
+  :root {
+    --bg: #f7f3ec;
+    --card: #ffffff;
+    --ink: #2b2622;
+    --muted: #7a7068;
+    --gold: #b8892f;
+    --gold-soft: #f1e4c6;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "Segoe UI", system-ui, sans-serif; background: var(--bg); color: var(--ink); }
+  header { padding: 24px 20px 8px; max-width: 1000px; margin: 0 auto; }
+  header h1 { font-size: 1.6rem; }
+  header p { color: var(--muted); margin-top: 4px; }
+  main { max-width: 1000px; margin: 0 auto; padding: 12px 20px 40px; }
+
+  /* RF 04-01: selector de contenido */
+  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .mode {
+    border: 2px solid transparent; background: var(--card); border-radius: var(--radius);
+    padding: 18px; cursor: pointer; font-size: 1rem; font-weight: 600; color: var(--ink);
+    box-shadow: 0 2px 8px rgba(0,0,0,.06); transition: .2s;
+  }
+  .mode small { display: block; font-weight: 400; color: var(--muted); margin-top: 4px; }
+  .mode.active { border-color: var(--gold); background: var(--gold-soft); }
+
+  /* RF 04-02: categorías */
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tab {
+    border: 1px solid var(--gold); background: transparent; color: var(--gold);
+    padding: 8px 16px; border-radius: 999px; cursor: pointer; font-size: .9rem;
+  }
+  .tab.active { background: var(--gold); color: #fff; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  .video-card {
+    background: var(--card); border-radius: var(--radius); overflow: hidden; cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06); transition: transform .2s; text-align: left; border: 0;
+  }
+  .video-card:hover { transform: translateY(-3px); }
+  .thumb {
+    aspect-ratio: 16/9; background: linear-gradient(135deg, var(--gold-soft), #e6d3a3);
+    display: flex; align-items: center; justify-content: center; font-size: 2.4rem;
+  }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .video-info { padding: 12px 14px 14px; }
+  .video-info h3 { font-size: 1rem; }
+  .video-info span { color: var(--muted); font-size: .85rem; }
+
+  .hidden { display: none; }
+  .placeholder { text-align: center; padding: 60px 20px; color: var(--muted); }
+
+  /* Reproductor dentro de la plataforma */
+  .modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,.7); display: flex;
+    align-items: center; justify-content: center; padding: 16px; z-index: 10;
+  }
+  .modal-box { background: var(--card); border-radius: var(--radius); width: 100%; max-width: 760px; overflow: hidden; }
+  .modal-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; }
+  .modal-head button { border: 0; background: none; font-size: 1.4rem; cursor: pointer; }
+  .player { aspect-ratio: 16/9; background: #000; }
+  .player iframe { width: 100%; height: 100%; border: 0; }
+  .no-video { color: #fff; display: flex; height: 100%; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Juegos y videos</h1>
+  <p>Elige cómo quieres relajarte hoy.</p>
+</header>
+
+<main>
+  <!-- RF 04-01 -->
+  <div class="modes">
+    <button class="mode active" data-mode="videos">🎬 Videos<small>Relajación y autoayuda</small></button>
+    <button class="mode" data-mode="juegos">🎮 Minijuegos<small>Interactivos y de calma</small></button>
+  </div>
+
+  <!-- Sección de videos (RF 04-02) -->
+  <section id="videos">
+    <div class="tabs" id="tabs"></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <!-- Sección de minijuegos (la haga otra persona del equipo) -->
+  <section id="juegos" class="hidden">
+    <div class="placeholder">🎮 Aquí van los minijuegos (RF 04-03)</div>
+  </section>
+</main>
+
+<!-- Reproductor -->
+<div class="modal hidden" id="modal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <strong id="modal-title"></strong>
+      <button id="close" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="player" id="player"></div>
+  </div>
+</div>
+
+<script>
+  /* ---------------------------------------------------------
+     DATOS: cambia "youtubeId" por el ID real de cada video.
+     (En https://www.youtube.com/watch?v=ABC123 el ID es ABC123)
+     --------------------------------------------------------- */
+  const categorias = [
+    { id: "estiramientos", nombre: "Estiramientos", icono: "🧘" },
+    { id: "baile",         nombre: "Rutinas y clases de baile", icono: "💃" },
+    { id: "meditacion",    nombre: "Meditación y respiración", icono: "🌿" }
+  ];
+
+  const videos = [
+    { titulo: "Estiramientos de cuello y hombros", categoria: "estiramientos", duracion: "10 min", youtubeId: "REEMPLAZAR" },
+    { titulo: "Estiramiento suave de espalda",     categoria: "estiramientos", duracion: "8 min",  youtubeId: "REEMPLAZAR" },
+    { titulo: "Rutina de baile para principiantes", categoria: "baile",        duracion: "15 min", youtubeId: "REEMPLAZAR" },
+    { titulo: "Clase de baile relajada",           categoria: "baile",         duracion: "20 min", youtubeId: "REEMPLAZAR" },
+    { titulo: "Meditación guiada para la calma",   categoria: "meditacion",    duracion: "10 min", youtubeId: "REEMPLAZAR" },
+    { titulo: "Respiración 4-7-8",                 categoria: "meditacion",    duracion: "5 min",  youtubeId: "REEMPLAZAR" }
+  ];
+
+  const tabsEl = document.getElementById("tabs");
+  const gridEl = document.getElementById("grid");
+  const modal = document.getElementById("modal");
+  const player = document.getElementById("player");
+  let categoriaActual = categorias[0].id;
+
+  function renderTabs() {
+    tabsEl.innerHTML = "";
+    categorias.forEach(c => {
+      const b = document.createElement("button");
+      b.className = "tab" + (c.id === categoriaActual ? " active" : "");
+      b.textContent = `${c.icono} ${c.nombre}`;
+      b.onclick = () => { categoriaActual = c.id; renderTabs(); renderVideos(); };
+      tabsEl.appendChild(b);
+    });
+  }
+
+  function renderVideos() {
+    gridEl.innerHTML = "";
+    const icono = categorias.find(c => c.id === categoriaActual).icono;
+    videos.filter(v => v.categoria === categoriaActual).forEach(v => {
+      const card = document.createElement("button");
+      card.className = "video-card";
+      const miniatura = v.youtubeId !== "REEMPLAZAR"
+        ? `<img src="https://img.youtube.com/vi/${v.youtubeId}/mqdefault.jpg" alt="">`
+        : icono;
+      card.innerHTML = `
+        <div class="thumb">${miniatura}</div>
+        <div class="video-info"><h3>${v.titulo}</h3><span>${v.duracion}</span></div>`;
+      card.onclick = () => abrirVideo(v);
+      gridEl.appendChild(card);
+    });
+  }
+
+  function abrirVideo(v) {
+    document.getElementById("modal-title").textContent = v.titulo;
+    player.innerHTML = v.youtubeId === "REEMPLAZAR"
+      ? `<div class="no-video">Falta agregar el ID del video en el código.</div>`
+      : `<iframe src="https://www.youtube-nocookie.com/embed/${v.youtubeId}?autoplay=1"
+           allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>`;
+    modal.classList.remove("hidden");
+  }
+
+  function cerrarVideo() {
+    player.innerHTML = ""; // detiene la reproducción
+    modal.classList.add("hidden");
+  }
+  document.getElementById("close").onclick = cerrarVideo;
+  modal.onclick = e => { if (e.target === modal) cerrarVideo(); };
+
+  // Selector Videos / Minijuegos
+  document.querySelectorAll(".mode").forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll(".mode").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("videos").classList.toggle("hidden", btn.dataset.mode !== "videos");
+      document.getElementById("juegos").classList.toggle("hidden", btn.dataset.mode !== "juegos");
+    };
+  });
+
+  renderTabs();
+  renderVideos();
+</script>
+</body>
+</html>
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the site in the jekyll/builder container
+      run: |
+        docker run \
+        -v ${{ github.workspace }}:/srv/jekyll -v ${{ github.workspace }}/_site:/srv/jekyll/_site \
+        jekyll/builder:latest /bin/bash -c "chmod -R 777 /srv/jekyll && jekyll build --future"
